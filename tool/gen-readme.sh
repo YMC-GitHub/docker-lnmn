@@ -7,13 +7,14 @@ THIS_FILE_PATH=$(
 source $THIS_FILE_PATH/function-list.sh
 THIS_PROJECT_PATH=$(path_resolve "$THIS_FILE_PATH" "../")
 RUN_SCRIPT_PATH=$(pwd)
+source $THIS_FILE_PATH/config.sh
 
 function write_introduction() {
   echo "write_introduction" >/dev/null 2>&1
   local TXT=
   TXT=$(
     cat <<EOF
-deploy lnmn(Linux+Nginx+mysql+nodejs) using docker
+deploy lnmn(Linux+Nginx+mysql/mongo+nodejs) using docker
 EOF
   )
   echo "$TXT"
@@ -21,6 +22,12 @@ EOF
 function write_architecture() {
   echo "write_architecture" >/dev/null 2>&1
   TXT=$(cat $THIS_FILE_PATH/architecture.md)
+  case "$db_driver" in
+  "mongo")
+    TXT=$(echo "$TXT" | sed "s/mysql/mongo/g")
+    ;;
+  esac
+
   echo "$TXT"
 }
 function write_build() {

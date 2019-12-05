@@ -33,6 +33,27 @@ EOF
   echo "$TXT"
 }
 
+function add_mongo() {
+  local author=
+  local email=
+  local TXT=
+  author=ymc-github
+  email=yemiancheng@gmail.com
+  local TXT=
+  TXT=$(
+    cat <<EOF
+######
+# See: https://github.com/YMC-GitHub/mirror-mongo
+######
+# data serve with mysql
+FROM registry.cn-hangzhou.aliyuncs.com/yemiancheng/mongo:alpine-3.9.4
+EXPOSE 27017
+EOF
+  )
+  TXT=$(echo "$TXT" | sed "s/^ *#.*//g" | sed "/^$/d")
+  echo "$TXT"
+}
+
 function add_nodejs() {
   local author=
   local email=
@@ -110,6 +131,12 @@ function main_fun() {
   path="$THIS_PROJECT_PATH/mysql/Dockerfile"
   echo "gen Dockerfile.yml :$path"
   TXT=$(add_mysql)
+  TXT=$(echo "$TXT" | sed "s/^ *#.*//g" | sed "/^$/d")
+  echo "$TXT" >"$path"
+
+  path="$THIS_PROJECT_PATH/mongo/Dockerfile"
+  echo "gen Dockerfile.yml :$path"
+  TXT=$(add_mongo)
   TXT=$(echo "$TXT" | sed "s/^ *#.*//g" | sed "/^$/d")
   echo "$TXT" >"$path"
 }

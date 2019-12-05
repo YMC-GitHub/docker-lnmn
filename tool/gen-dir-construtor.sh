@@ -22,6 +22,7 @@ function main_fun() {
   nginx=nginx
   nodejs=nodejs
   mysql=mysql
+  mongo=mongo
 EOF
   )
   KEY_VAL_MAP=$(echo "$KEY_VAL_MAP" | sed "s/^ *#.*//g" | sed "/^ *$/d")

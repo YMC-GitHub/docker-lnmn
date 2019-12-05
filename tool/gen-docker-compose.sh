@@ -5,6 +5,7 @@ THIS_FILE_PATH=$(
   pwd
 )
 source $THIS_FILE_PATH/function-list.sh
+source $THIS_FILE_PATH/config.sh
 THIS_PROJECT_PATH=$(path_resolve "$THIS_FILE_PATH" "../")
 RUN_SCRIPT_PATH=$(pwd)
 
@@ -44,6 +45,16 @@ EOF
 
 function add_nodejs() {
   local TXT=
+  local link_db_cm_txt=
+  case "$db_driver" in
+  "mysql")
+    link_db_cm_txt="mysql:mysql"
+    ;;
+  "mongo")
+    link_db_cm_txt="mongo:mongo"
+    ;;
+  esac
+
   TXT=$(
     cat <<EOF
 #dymatic web serve with nodejs
@@ -64,7 +75,7 @@ nodejs:
     # - DB_USERNAME=
     # - DB_PASSWORD=
   links:
-    - mysql:mysql
+    - $link_db_cm_txt
 EOF
   )
   TXT=$(echo "$TXT" | sed "s/^ *#.*//g" | sed "/^$/d")
@@ -98,6 +109,29 @@ EOF
   echo "$TXT"
 }
 
+function add_mongo() {
+  local TXT=
+  TXT=$(
+    cat <<EOF
+# data serve with mongo
+mongo:
+  build: ./mongo
+  ports:
+    # allow client to access 27017
+    - "27017:27017"
+  volumes:
+    # NOTE: your data will be stored in ./mongo
+    #- ./mongo/log/:/data/log/
+    #- ./mongo/conf.d:/etc/conf.d/
+    - ./mongo/data:/data/db/mongo
+    # uses local machine time to cm
+    - /etc/localtime:/etc/localtime
+EOF
+  )
+  TXT=$(echo "$TXT" | sed "s/^ *#.*//g" | sed "/^$/d")
+  echo "$TXT"
+}
+
 function main_fun() {
   local name="Ye Miancheng"
   local email="ymc.github@gmail.com"
@@ -106,9 +140,20 @@ function main_fun() {
   local nginx_txt=$(add_nginx)
   local nodejs_txt=$(add_nodejs)
   local mysql_txt=$(add_mysql)
+  local mongo_txt=$(add_mongo)
+
+  local db_img_part=
+  case "$db_driver" in
+  "mysql")
+    db_img_part="$mysql_txt"
+    ;;
+  "mongo")
+    db_img_part="$mongo_txt"
+    ;;
+  esac
   TXT=$(
     cat <<EOF
-$mysql_txt
+$db_img_part
 $nodejs_txt
 $nginx_txt
 EOF

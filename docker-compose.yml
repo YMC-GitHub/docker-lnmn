@@ -1,13 +1,10 @@
-mysql:
-  build: ./mysql
+mongo:
+  build: ./mongo
   ports:
-    - "3306:3306"
+    - "27017:27017"
   volumes:
-    - ./mysql/my.cnf:/etc/mysql/my.cnf
-    - ./mysql/data:/var/lib/mysql
+    - ./mongo/data:/data/db/mongo
     - /etc/localtime:/etc/localtime
-  environment:
-    - MYSQL_ROOT_PASSWORD=your_mysql_password
 nodejs:
   build: ./nodejs
   ports:
@@ -16,7 +13,7 @@ nodejs:
     - ./app:/usr/share/nginx/html
     - /etc/localtime:/etc/localtime
   links:
-    - mysql:mysql
+    - mongo:mongo
 nginx:
   build: ./nginx
   ports:
